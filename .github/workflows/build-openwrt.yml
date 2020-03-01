@@ -22,14 +22,20 @@ on:
 #    types: started
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
-  REPO_BRANCH: master
+  REPO_URL_LIENOL: https://github.com/Lienol/openwrt
+  REPO_URL_LEAN: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH_TWO: dev-lean-lede
+  REPO_BRANCH_ORG: dev-19.07
+  REPO_BRANCH_LEAN: master
   CONFIG_FILE: .config
   DIY_SH: diy.sh
-  SSH_ACTIONS: false
+  SSH_ACTIONS: ture
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   TZ: Asia/Shanghai
+  BUILD_REPO: TWO
+  #BUILD_REPO: LEAN
+  #BUILD_REPO: ORG
 
 jobs:
   build:
@@ -52,8 +58,23 @@ jobs:
         sudo -E apt-get -qq clean
         curl -fsSL https://raw.githubusercontent.com/P3TERX/dotfiles/master/.bashrc >> ~/.bashrc
 
-    - name: Clone source code
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+    - if: env.BUILD_REPO == 'LEAN'
+      name: Clone Lean source code
+      run: |
+        git clone --depth 1 $REPO_URL_LEAN -b $REPO_BRANCH_LEAN openwrt
+        echo "::set-env name=FIRMWARE_NAME::openwrt_lean"
+    
+    - if: env.BUILD_REPO == 'TWO'
+      name: Clone Lienol Lean source code
+      run: |
+        git clone --depth 1 $REPO_URL_LIENOL -b $REPO_BRANCH_TWO openwrt
+        echo "::set-env name=FIRMWARE_NAME::openwrt_lean_lienol"
+      
+    - if: env.BUILD_REPO == 'ORG'
+      name: Clone Lienol Org source code
+      run: |
+        git clone --depth 1 $REPO_URL_LIENOL -b $REPO_BRANCH_ORG openwrt
+        echo "::set-env name=FIRMWARE_NAME::openwrt_ORG_lienol"
 
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
@@ -78,7 +99,7 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        make download -j8
+        make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
@@ -110,5 +131,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: OpenWrt_firmware
+        name: ${{ env.FIRMWARE_NAME }}
         path: ${{ env.FIRMWARE }}
