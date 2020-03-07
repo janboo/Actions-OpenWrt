@@ -33,9 +33,9 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   TZ: Asia/Shanghai
-  #BUILD_REPO: TWO
+  BUILD_REPO: TWO
   #BUILD_REPO: LEAN
-  BUILD_REPO: ORG
+  #BUILD_REPO: ORG
 
 jobs:
   build:
