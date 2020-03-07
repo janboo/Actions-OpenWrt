@@ -26,6 +26,7 @@ env:
   REPO_URL_LEAN: https://github.com/coolsnowwolf/lede
   REPO_BRANCH_TWO: dev-lean-lede
   REPO_BRANCH_ORG: dev-19.07
+  REPO_BRANCH_ORGM: dev-master
   REPO_BRANCH_LEAN: master
   CONFIG_FILE: .config
   DIY_SH: diy.sh
@@ -33,9 +34,10 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   TZ: Asia/Shanghai
-  BUILD_REPO: TWO
+  #BUILD_REPO: TWO
   #BUILD_REPO: LEAN
-  #BUILD_REPO: ORG
+  BUILD_REPO: ORG
+  #BUILD_REPO: ORGM
 
 jobs:
   build:
@@ -76,6 +78,12 @@ jobs:
         git clone --depth 1 $REPO_URL_LIENOL -b $REPO_BRANCH_ORG openwrt
         echo "::set-env name=FIRMWARE_NAME::openwrt_ORG_lienol"
 
+    - if: env.BUILD_REPO == 'ORGM'
+      name: Clone Lienol Org master source code
+      run: |
+        git clone --depth 1 $REPO_URL_LIENOL -b $REPO_BRANCH_ORGM openwrt
+        echo "::set-env name=FIRMWARE_NAME::openwrt_ORG_lienol"
+        
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
