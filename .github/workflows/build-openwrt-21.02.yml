@@ -88,11 +88,14 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
 
-    - name: 自定义安装源
+    - name: 更新&安装 feeds源
       run: |
-        cd openwrt && git clone https://github.com/kenzok78/jeii package/jeii
+        cd openwrt
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        git clone https://github.com/kenzok78/jeii package/jeii
 
-    - name: Load custom configuration
+    - name: 加载自定配置
       run: |
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
@@ -101,9 +104,6 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_P2_SH
         cp -f package/jeii/commit/default-settings package/emortal/default-settings/files/zzz-default-settings
         cp -f package/jeii/commit/banner package/emortal/default-settings/files/openwrt_banner
-        make defconfig
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@main
